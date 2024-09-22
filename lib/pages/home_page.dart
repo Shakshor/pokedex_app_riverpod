@@ -1,25 +1,33 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokedex_with_riverpod/controllers/home_page_controller.dart';
 import 'package:pokedex_with_riverpod/models/page_data.dart';
+import 'package:pokedex_with_riverpod/models/pokemon.dart';
+import 'package:pokedex_with_riverpod/widgets/pokemon_list_tile.dart';
 
-final homePageControllerProvider = StateNotifierProvider((ref){
+final homePageControllerProvider = StateNotifierProvider<HomePageController, HomePageData>((ref){
   return HomePageController(
       HomePageData.initial(), // initial_data_should_be_given
   );
 });
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
+  late  HomePageController _homePageController;
+  late  HomePageData _homePageData;
 
   @override
   Widget build(BuildContext context) {
+    _homePageController = ref.watch(homePageControllerProvider.notifier);
+    _homePageData = ref.watch(homePageControllerProvider);
     Size size = MediaQuery.of(context).size;
     // Size size = MediaQuery.sizeOf(context);
 
@@ -53,7 +61,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-}
 
   // all_pokemons_widget
   Widget _allPokemonsList(
@@ -74,12 +81,22 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
+
           SizedBox(
+            // var data = _homePageData.data?.results?.length;
+            // log('$data');
             height: size.height * 0.60,
             child: ListView.builder(
-                itemCount: 0,
+                itemCount: _homePageData.data?.results?.length ?? 0,
                 itemBuilder: (context, index){
-                  return ListTile();
+                  PokemonListResult pokemon = _homePageData.data!.results![index];
+
+                  // return ListTile(
+                  //   title: Text(index.toString()),
+                  // );
+                  return PokemonListTile(
+                      pokemonUrl: pokemon.url!,
+                  );
                 }
             ),
           ),
@@ -87,3 +104,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+
